@@ -6,7 +6,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const main_1 = require("./main");
 const meow_1 = __importDefault(require("meow"));
-console.log(module.paths, __dirname, __filename);
 //// INIT CLI ////
 const cli = meow_1.default(`
 	Usage

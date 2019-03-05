@@ -33,7 +33,7 @@ export function getHexCode() {
 let months: any;
 export function getTextualMonth(m: number) : string {
     if (!months) {
-        months = JSON.parse(fs.readFileSync("cfg/month.json", 'utf8'));
+        months = JSON.parse(fs.readFileSync(__dirname + "../cfg/month.json", 'utf8'));
     }
 
     if (String(m) in months) {
@@ -125,7 +125,7 @@ export function deleteFolderRecursive(path: string, remove_root = true) {
 
 export function initExts() : Extensions {
     // Lecture du JSON contenant les extensions supportées
-    const json_exts: {[fileType: string]: string[]} = JSON.parse(fs.readFileSync("cfg/ext.json", 'utf8'));
+    const json_exts: {[fileType: string]: string[]} = JSON.parse(fs.readFileSync(__dirname + "../cfg/ext.json", 'utf8'));
     const exts: Extensions = {};
 
     for (const type in json_exts) {

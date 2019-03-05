@@ -1,9 +1,6 @@
 #!/usr/bin/env node
-
 import { parseFolders } from "./main";
 import meow from "meow";
-
-console.log(module.paths, __dirname, __filename);
 
 //// INIT CLI ////
 const cli = meow(`
