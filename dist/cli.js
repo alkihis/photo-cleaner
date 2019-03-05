@@ -29,20 +29,20 @@ const cli = meow_1.default(`
 `, {
     flags: {
         deletesrc: {
-            type: 'boolean',
-            alias: 'd'
+            type: "boolean",
+            alias: "d"
         },
         copy: {
-            type: 'boolean',
-            alias: 'c'
+            type: "boolean",
+            alias: "c"
         },
         help: {
-            type: 'boolean',
-            alias: 'h'
+            type: "boolean",
+            alias: "h"
         },
         duplicates: {
-            type: 'string',
-            alias: 'r'
+            type: "string",
+            alias: "r"
         }
     }
 });
@@ -50,7 +50,7 @@ if (cli.flags.help) {
     cli.showHelp(0);
 }
 // Si le flag duplicate est précisé mais que la valeur est mauvaise
-if (cli.flags.duplicates && !(["older", "recent", "false"].includes(cli.flags.duplicates))) {
+if (cli.flags.duplicates && !["older", "recent", "false"].includes(cli.flags.duplicates)) {
     console.log("Invalid value for --duplicates: " + cli.flags.duplicates);
     cli.showHelp(0);
 }

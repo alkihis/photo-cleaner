@@ -3,7 +3,8 @@ import { parseFolders } from "./main";
 import meow from "meow";
 
 //// INIT CLI ////
-const cli = meow(`
+const cli = meow(
+    `
 	Usage
 	  $ photo-cleaner <input-folder> <output-folder> [-d] [-c] [-r recent | older]
 
@@ -23,24 +24,24 @@ const cli = meow(`
         to check duplicates (in case of OUTPUT is not empty before sort operation), 
         and keep the most recent one on any conflict.
 `, {
-	flags: {
-		deletesrc: {
-			type: 'boolean',
-			alias: 'd'
+    flags: {
+        deletesrc: {
+            type: "boolean",
+            alias: "d"
         },
         copy: {
-			type: 'boolean',
-			alias: 'c'
+            type: "boolean",
+            alias: "c"
         },
         help: {
-            type: 'boolean',
-            alias: 'h'
+            type: "boolean",
+            alias: "h"
         },
         duplicates: {
-            type: 'string',
-            alias: 'r'
+            type: "string",
+            alias: "r"
         }
-	}
+    }
 });
 
 if (cli.flags.help) {
@@ -48,15 +49,14 @@ if (cli.flags.help) {
 }
 
 // Si le flag duplicate est précisé mais que la valeur est mauvaise
-if (cli.flags.duplicates && !(["older", "recent", "false"].includes(cli.flags.duplicates))) {
+if (cli.flags.duplicates && !["older", "recent", "false"].includes(cli.flags.duplicates)) {
     console.log("Invalid value for --duplicates: " + cli.flags.duplicates);
     cli.showHelp(0);
 }
 
 if (cli.input.length >= 2) {
     parseFolders(cli.input[0], cli.input[1], cli.flags);
-}
-else {
+} else {
     console.log("Missing positional arguments");
     cli.showHelp(0);
 }
