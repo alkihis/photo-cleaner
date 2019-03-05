@@ -7,64 +7,115 @@ const fs_1 = __importDefault(require("fs"));
 const glob_1 = __importDefault(require("glob"));
 const md5_file_1 = __importDefault(require("md5-file"));
 const progress_1 = __importDefault(require("progress"));
+const meow_1 = __importDefault(require("meow"));
 const helpers_1 = require("./helpers");
-// Saute une ligne
-console.log("");
-// Parsage des arguments
-if (process.argv.length < 4) {
-    console.error("Arguments requis manquants.");
-    console.error("Usage: npm start [srcFolder] [destFolder] [deleteSourceAfterCopy: true | (false)]\n");
-    process.exit();
-}
-const src = process.argv[2];
-const dest = process.argv[3];
-let delete_after = false;
-let copy_mode = false;
-if (process.argv.length > 4 && process.argv[4] === "copy") {
-    copy_mode = true;
-}
-if (process.argv.length > 5 && process.argv[5] === "true") {
-    delete_after = true;
-}
-if (!fs_1.default.existsSync(src)) {
-    console.error("Le dossier source doit exister.\n");
-    process.exit();
-}
-if (!fs_1.default.existsSync(dest)) {
-    console.log("Création automatique du dossier de destination.\n");
-    fs_1.default.mkdirSync(dest);
-    if (!fs_1.default.existsSync(dest)) {
-        console.error("Impossible de créer le dossier de destination.\n");
-        process.exit();
-    }
-}
-const files = {};
-const exts = helpers_1.initExts();
-// Recherche de tous les fichiers image: .jpg, .jpeg, .png et tous les fichiers vidéo: mp4, avi, mov
-console.log("Identification des fichiers...");
-const all_files = [];
-for (const e in exts) {
-    for (const ext of exts[e]) {
-        for (const file of glob_1.default.sync(src + "/**/*." + ext)) {
-            all_files.push([file, e]);
+const duplicates_1 = require("./duplicates");
+//// INIT CLI ////
+const cli = meow_1.default(`
+	Usage
+	  $ photo-cleaner <input-folder> <output-folder>
+
+	Options
+      --deletesrc, -d   Delete source after copy / move
+      --copy, -c        Copy files from source instead of move
+      --duplicates, -r <recent | older> 
+        Remove possible existing duplicates in destination folder (and keep the most recent or the older duplicate)
+      --help, -h        Show this help message
+
+	Examples
+	  $ photo-cleaner INPUT OUTPUT -c
+`, {
+    flags: {
+        deletesrc: {
+            type: 'boolean',
+            alias: 'd'
+        },
+        copy: {
+            type: 'boolean',
+            alias: 'c'
+        },
+        help: {
+            type: 'boolean',
+            alias: 'h'
+        },
+        duplicates: {
+            type: 'string',
+            alias: 'r'
         }
     }
+});
+if (cli.flags.help) {
+    cli.showHelp(0);
 }
-const first_bar = new progress_1.default(':current/:total calculé [:bar] :percent', { total: all_files.length, incomplete: ".", head: ">", clear: true });
-for (const f of all_files) {
-    // On peut afficher une barre de progression ici
-    helpers_1.registerFile(files, f[0], f[1]);
-    first_bar.tick();
+// Si le flag duplicate est précisé mais que la valeur est mauvaise
+if (cli.flags.duplicates && !(["older", "recent", "false"].includes(cli.flags.duplicates))) {
+    console.log("Invalid value for --duplicates: " + cli.flags.duplicates);
+    cli.showHelp(0);
 }
-first_bar.terminate();
-// Copie ou déplacement vers la destination
-const count_file = Object.keys(files).length;
-console.log(`${count_file === 0 ? "Aucun" : count_file} fichier${count_file > 1 ? "s" : ''} trouvé${count_file > 1 ? "s" : ''}.\n`);
-if (count_file === 0) {
-    process.exit();
+if (cli.input.length >= 2) {
+    parseFolders(cli.input[0], cli.input[1], cli.flags);
 }
-async function launchCopy() {
-    const bar = new progress_1.default(':current/:total ' + (copy_mode ? "copié" : "déplacé") + ' [:bar] :percent :etas', { total: count_file, incomplete: ".", head: ">", clear: true });
+else {
+    console.log("Missing positional arguments");
+    cli.showHelp(0);
+}
+function parseFolders(src, dest, flags) {
+    // Saute une ligne
+    console.log("");
+    // Parsage des arguments
+    let delete_after = false;
+    let copy_mode = false;
+    let rm_duplications = "false";
+    if (flags.copy) {
+        copy_mode = true;
+    }
+    if (flags.deletesrc) {
+        delete_after = true;
+    }
+    if (flags.duplicates) {
+        rm_duplications = flags.duplicates;
+    }
+    if (!fs_1.default.existsSync(src)) {
+        console.error("Source folder must exists.\n");
+        process.exit();
+    }
+    if (!fs_1.default.existsSync(dest)) {
+        console.log("Auto-creating destination folder.\n");
+        fs_1.default.mkdirSync(dest);
+        if (!fs_1.default.existsSync(dest)) {
+            console.error("Unable to create destination folder. Please check your rights.\n");
+            process.exit();
+        }
+    }
+    const files = {};
+    const exts = helpers_1.initExts();
+    // Recherche de tous les fichiers image: .jpg, .jpeg, .png et tous les fichiers vidéo: mp4, avi, mov
+    console.log("Looking for media files...");
+    const all_files = [];
+    for (const e in exts) {
+        for (const ext of exts[e]) {
+            for (const file of glob_1.default.sync(src + "/**/*." + ext)) {
+                all_files.push([file, e]);
+            }
+        }
+    }
+    const first_bar = new progress_1.default(':current/:total computed [:bar] :percent', { total: all_files.length, incomplete: ".", head: ">", clear: true });
+    for (const f of all_files) {
+        // On peut afficher une barre de progression ici
+        helpers_1.registerFile(files, f[0], f[1]);
+        first_bar.tick();
+    }
+    first_bar.terminate();
+    // Copie ou déplacement vers la destination
+    const count_file = Object.keys(files).length;
+    console.log(`${count_file === 0 ? "No" : count_file} unique file${count_file > 1 ? "s" : ''} found.\n`);
+    if (count_file === 0) {
+        process.exit();
+    }
+    launchCopy(src, dest, delete_after, copy_mode, files, count_file, rm_duplications);
+}
+async function launchCopy(src, dest, delete_after, copy_mode, files, count_file, remove_duplicates) {
+    const bar = new progress_1.default(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas', { total: count_file, incomplete: ".", head: ">", clear: true });
     const promises = [];
     for (const hash in files) {
         const file = files[hash];
@@ -110,14 +161,16 @@ async function launchCopy() {
         await Promise.all(promises);
         bar.terminate();
         if (delete_after) {
-            console.log("Suppression des fichiers dans le dossier source.\n");
+            console.log("Delete files in source folder.\n");
             helpers_1.deleteFolderRecursive(src, false);
         }
-        console.log("Vos médias ont bien été triés et " + (copy_mode ? "copiés" : "déplacés") + ".\n");
+        if (remove_duplicates !== "false") {
+            await duplicates_1.removeDuplicates(dest, remove_duplicates);
+        }
+        console.log("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
     }
     catch (err) {
         bar.terminate();
-        console.error("Une erreur est survenue lors de la copie de vos fichiers.\n", err);
+        console.error("An error occured during copy operations.\n", err);
     }
 }
-launchCopy();

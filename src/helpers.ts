@@ -18,6 +18,8 @@ export enum FileType {
 
 export type Extensions = {[fileType: string]: string[]};
 
+export type DuplicateMode = "recent" | "older" | "false";
+
 
 //// @functions
 
