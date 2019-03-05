@@ -4,16 +4,18 @@ import glob from 'glob';
 import { DuplicateMode } from './helpers';
 import md5File from 'md5-file';
 
-export async function removeDuplicates(folder: string, mode: DuplicateMode) : Promise<void> {
+export function removeDuplicates(folder: string, mode: DuplicateMode) : void {
     // Recherche de tous les fichiers disponibles dans la source
-    console.log("Listing files inside destination folder.\n");
-    const files = glob.sync(folder + "/**.*");
+    console.log("Listing files inside destination folder.");
 
-    console.log("Looking for duplicates...\n");
+    const files = glob.sync(folder + "/**/*.*");
+
+    console.log("Looking for duplicates...");
 
     const bar = new ProgressBar(':current/:total [:bar] :percent :etas', { total: files.length, incomplete: ".", head: ">", clear: true });
 
     const hash_to_filedate: {[hash: string]: [string, Date]} = {};
+    let removed = 0;
 
     for (const filename of files) {
         const current_file_hash = md5File.sync(filename);
@@ -54,6 +56,7 @@ export async function removeDuplicates(folder: string, mode: DuplicateMode) : Pr
             }
 
             if (to_remove) {
+                removed++;
                 fs.unlinkSync(to_remove);
             }
         }
@@ -61,11 +64,11 @@ export async function removeDuplicates(folder: string, mode: DuplicateMode) : Pr
             // On enregistre le fichier actuel
             hash_to_filedate[current_file_hash] = [filename, current_file_date];
         }
-    
+
         bar.tick();
     }
 
     bar.terminate();
     
-    console.log("Duplicates has been successfully deleted.\n");
+    console.log("Duplicates has been successfully deleted (" + removed + " removed).\n");
 }

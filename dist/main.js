@@ -7,58 +7,8 @@ const fs_1 = __importDefault(require("fs"));
 const glob_1 = __importDefault(require("glob"));
 const md5_file_1 = __importDefault(require("md5-file"));
 const progress_1 = __importDefault(require("progress"));
-const meow_1 = __importDefault(require("meow"));
 const helpers_1 = require("./helpers");
 const duplicates_1 = require("./duplicates");
-//// INIT CLI ////
-const cli = meow_1.default(`
-	Usage
-	  $ photo-cleaner <input-folder> <output-folder>
-
-	Options
-      --deletesrc, -d   Delete source after copy / move
-      --copy, -c        Copy files from source instead of move
-      --duplicates, -r <recent | older> 
-        Remove possible existing duplicates in destination folder (and keep the most recent or the older duplicate)
-      --help, -h        Show this help message
-
-	Examples
-	  $ photo-cleaner INPUT OUTPUT -c
-`, {
-    flags: {
-        deletesrc: {
-            type: 'boolean',
-            alias: 'd'
-        },
-        copy: {
-            type: 'boolean',
-            alias: 'c'
-        },
-        help: {
-            type: 'boolean',
-            alias: 'h'
-        },
-        duplicates: {
-            type: 'string',
-            alias: 'r'
-        }
-    }
-});
-if (cli.flags.help) {
-    cli.showHelp(0);
-}
-// Si le flag duplicate est précisé mais que la valeur est mauvaise
-if (cli.flags.duplicates && !(["older", "recent", "false"].includes(cli.flags.duplicates))) {
-    console.log("Invalid value for --duplicates: " + cli.flags.duplicates);
-    cli.showHelp(0);
-}
-if (cli.input.length >= 2) {
-    parseFolders(cli.input[0], cli.input[1], cli.flags);
-}
-else {
-    console.log("Missing positional arguments");
-    cli.showHelp(0);
-}
 function parseFolders(src, dest, flags) {
     // Saute une ligne
     console.log("");
@@ -114,6 +64,7 @@ function parseFolders(src, dest, flags) {
     }
     launchCopy(src, dest, delete_after, copy_mode, files, count_file, rm_duplications);
 }
+exports.parseFolders = parseFolders;
 async function launchCopy(src, dest, delete_after, copy_mode, files, count_file, remove_duplicates) {
     const bar = new progress_1.default(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas', { total: count_file, incomplete: ".", head: ">", clear: true });
     const promises = [];
@@ -146,6 +97,7 @@ async function launchCopy(src, dest, delete_after, copy_mode, files, count_file,
             }
             else {
                 // Sinon, pas de copie !
+                bar.tick();
                 continue;
             }
         }
@@ -165,7 +117,7 @@ async function launchCopy(src, dest, delete_after, copy_mode, files, count_file,
             helpers_1.deleteFolderRecursive(src, false);
         }
         if (remove_duplicates !== "false") {
-            await duplicates_1.removeDuplicates(dest, remove_duplicates);
+            duplicates_1.removeDuplicates(dest, remove_duplicates);
         }
         console.log("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
     }
@@ -174,3 +126,4 @@ async function launchCopy(src, dest, delete_after, copy_mode, files, count_file,
         console.error("An error occured during copy operations.\n", err);
     }
 }
+exports.launchCopy = launchCopy;

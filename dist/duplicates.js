@@ -7,13 +7,14 @@ const fs_1 = __importDefault(require("fs"));
 const progress_1 = __importDefault(require("progress"));
 const glob_1 = __importDefault(require("glob"));
 const md5_file_1 = __importDefault(require("md5-file"));
-async function removeDuplicates(folder, mode) {
+function removeDuplicates(folder, mode) {
     // Recherche de tous les fichiers disponibles dans la source
-    console.log("Listing files inside destination folder.\n");
-    const files = glob_1.default.sync(folder + "/**.*");
-    console.log("Looking for duplicates...\n");
+    console.log("Listing files inside destination folder.");
+    const files = glob_1.default.sync(folder + "/**/*.*");
+    console.log("Looking for duplicates...");
     const bar = new progress_1.default(':current/:total [:bar] :percent :etas', { total: files.length, incomplete: ".", head: ">", clear: true });
     const hash_to_filedate = {};
+    let removed = 0;
     for (const filename of files) {
         const current_file_hash = md5_file_1.default.sync(filename);
         const current_file_date = fs_1.default.lstatSync(filename).mtime;
@@ -48,6 +49,7 @@ async function removeDuplicates(folder, mode) {
                 }
             }
             if (to_remove) {
+                removed++;
                 fs_1.default.unlinkSync(to_remove);
             }
         }
@@ -58,6 +60,6 @@ async function removeDuplicates(folder, mode) {
         bar.tick();
     }
     bar.terminate();
-    console.log("Duplicates has been successfully deleted.\n");
+    console.log("Duplicates has been successfully deleted (" + removed + " removed).\n");
 }
 exports.removeDuplicates = removeDuplicates;
