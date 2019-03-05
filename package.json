@@ -12,12 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/exif": "^0.6.0",
-    "@types/glob": "^7.1.1",
-    "@types/md5-file": "^4.0.0",
-    "@types/meow": "^5.0.0",
-    "@types/node": "^11.10.4",
-    "@types/progress": "^2.0.3",
     "exif": "^0.6.0",
     "glob": "^7.1.3",
     "md5-file": "^4.0.0",
