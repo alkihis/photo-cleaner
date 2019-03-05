@@ -1,6 +1,6 @@
 {
   "name": "@alkihis/photo-cleaner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Make photo duplicate remove great again",
   "main": "dist/cli.js",
   "scripts": {
