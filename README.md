@@ -2,16 +2,11 @@
 
 ## Unix
 ```bash
-./start.sh [dossierSource] [dossierDestination] [modeDeCopie: ("move") | "copy"] [supprimerFichiersSourceApresDeplacementOuCopie: true | (false)]
-```
-
-## Windows
-```batch
-./start.cmd [dossierSource] [dossierDestination] [modeDeCopie: ("move") | "copy"] [supprimerFichiersSourceApresDeplacementOuCopie: true | (false)]
+photo-cleaner [srcFolder] [destFolder] [--help]
 ```
 
 # Exemple
 
 ```bash
-./start.sh INPUT OUTPUT copy true
+photo-cleaner INPUT OUTPUT -c -r recent
 ```

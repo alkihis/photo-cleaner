@@ -58,7 +58,7 @@ export async function parseFolders(src: string, dest: string, flags: any) {
         }
     }
 
-    const first_bar = new ProgressBar(':current/:total computed [:bar] :percent', { total: all_files.length, incomplete: ".", head: ">", clear: true });
+    const first_bar = new ProgressBar(':current/:total computed [:bar] :percent ', { total: all_files.length, incomplete: ".", head: ">", clear: true });
 
     for (const f of all_files) {
         // On peut afficher une barre de progression ici
@@ -80,7 +80,7 @@ export async function parseFolders(src: string, dest: string, flags: any) {
 }
 
 export async function launchCopy(src: string, dest: string, delete_after: boolean, copy_mode: boolean, files: MediaFiles, count_file: number, remove_duplicates: DuplicateMode) {
-    const bar = new ProgressBar(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas', { total: count_file, incomplete: ".", head: ">", clear: true });
+    const bar = new ProgressBar(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas ', { total: count_file, incomplete: ".", head: ">", clear: true });
 
     const promises: Promise<void>[] = [];
 

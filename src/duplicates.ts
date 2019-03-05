@@ -12,7 +12,7 @@ export function removeDuplicates(folder: string, mode: DuplicateMode) : void {
 
     console.log("Looking for duplicates...");
 
-    const bar = new ProgressBar(':current/:total [:bar] :percent :etas', { total: files.length, incomplete: ".", head: ">", clear: true });
+    const bar = new ProgressBar(':current/:total [:bar] :percent :etas ', { total: files.length, incomplete: ".", head: ">", clear: true });
 
     const hash_to_filedate: {[hash: string]: [string, Date]} = {};
     let removed = 0;

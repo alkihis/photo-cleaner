@@ -12,7 +12,7 @@ function removeDuplicates(folder, mode) {
     console.log("Listing files inside destination folder.");
     const files = glob_1.default.sync(folder + "/**/*.*");
     console.log("Looking for duplicates...");
-    const bar = new progress_1.default(':current/:total [:bar] :percent :etas', { total: files.length, incomplete: ".", head: ">", clear: true });
+    const bar = new progress_1.default(':current/:total [:bar] :percent :etas ', { total: files.length, incomplete: ".", head: ">", clear: true });
     const hash_to_filedate = {};
     let removed = 0;
     for (const filename of files) {

@@ -49,7 +49,7 @@ async function parseFolders(src, dest, flags) {
             }
         }
     }
-    const first_bar = new progress_1.default(':current/:total computed [:bar] :percent', { total: all_files.length, incomplete: ".", head: ">", clear: true });
+    const first_bar = new progress_1.default(':current/:total computed [:bar] :percent ', { total: all_files.length, incomplete: ".", head: ">", clear: true });
     for (const f of all_files) {
         // On peut afficher une barre de progression ici
         await helpers_1.registerFile(files, f[0], f[1]);
@@ -66,7 +66,7 @@ async function parseFolders(src, dest, flags) {
 }
 exports.parseFolders = parseFolders;
 async function launchCopy(src, dest, delete_after, copy_mode, files, count_file, remove_duplicates) {
-    const bar = new progress_1.default(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas', { total: count_file, incomplete: ".", head: ">", clear: true });
+    const bar = new progress_1.default(':current/:total ' + (copy_mode ? "copied" : "moved") + ' [:bar] :percent :etas ', { total: count_file, incomplete: ".", head: ">", clear: true });
     const promises = [];
     for (const hash in files) {
         const file = files[hash];

@@ -1,5 +1,5 @@
 {
-  "name": "photo-cleaner",
+  "name": "@alkihis/photo-cleaner",
   "version": "1.0.0",
   "description": "Make photo duplicate remove great again",
   "main": "dist/cli.js",
@@ -23,5 +23,8 @@
     "md5-file": "^4.0.0",
     "meow": "^5.0.0",
     "progress": "^2.0.3"
-  }
+  },
+  "files": [
+    "cfg/*.*"
+  ]
 }
