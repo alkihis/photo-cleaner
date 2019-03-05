@@ -58,7 +58,10 @@ async function registerFile(files, file, type) {
             const date = e.exif.DateTimeOriginal;
             if (date) {
                 const formatted = date.replace(/([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/, '$1-$2-$3 $4:$5:$6');
-                mtime = new Date(formatted);
+                const local_mtime = new Date(formatted);
+                if (!isNaN(local_mtime.getFullYear())) {
+                    mtime = local_mtime;
+                }
             }
         }
         catch (e) { }

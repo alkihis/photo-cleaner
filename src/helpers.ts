@@ -78,7 +78,11 @@ export async function registerFile(files: MediaFiles, file: string, type: FileTy
                     '$1-$2-$3 $4:$5:$6'
                 );
 
-                mtime = new Date(formatted);
+                const local_mtime = new Date(formatted);
+
+                if (!isNaN(local_mtime.getFullYear())) {
+                    mtime = local_mtime;
+                }
             }
         } catch (e) { }
 
