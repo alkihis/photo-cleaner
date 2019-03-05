@@ -9,7 +9,7 @@ const md5_file_1 = __importDefault(require("md5-file"));
 const progress_1 = __importDefault(require("progress"));
 const helpers_1 = require("./helpers");
 const duplicates_1 = require("./duplicates");
-function parseFolders(src, dest, flags) {
+async function parseFolders(src, dest, flags) {
     // Saute une ligne
     console.log("");
     // Parsage des arguments
@@ -52,7 +52,7 @@ function parseFolders(src, dest, flags) {
     const first_bar = new progress_1.default(':current/:total computed [:bar] :percent', { total: all_files.length, incomplete: ".", head: ">", clear: true });
     for (const f of all_files) {
         // On peut afficher une barre de progression ici
-        helpers_1.registerFile(files, f[0], f[1]);
+        await helpers_1.registerFile(files, f[0], f[1]);
         first_bar.tick();
     }
     first_bar.terminate();

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import md5File from 'md5-file';
+import exif, { ExifData } from 'exif';
 
 //// @types 
 
@@ -39,7 +40,19 @@ export function getTextualMonth(m: number) : string {
     }
 }
 
-export function registerFile(files: MediaFiles, file: string, type: FileType) : void {
+function getExif(path: string) : Promise<ExifData> {
+    return new Promise((resolve, reject) => {
+        const e = new exif.ExifImage({
+            image: path
+        }, (err, data) => {
+            if (err) reject(err);
+
+            resolve(data);
+        });
+    });
+}
+
+export async function registerFile(files: MediaFiles, file: string, type: FileType) : Promise<void> {
     const basename = file.split('/').pop() as string;
     const md5 = md5File.sync(file);
 
@@ -47,7 +60,24 @@ export function registerFile(files: MediaFiles, file: string, type: FileType) : 
         // on ignore
     }
     else {
-        const mtime = fs.lstatSync(file).mtime;
+        let mtime = fs.lstatSync(file).mtime;
+
+        // On essaie de récupérer l'exif
+        try {
+            const e = await getExif(file);
+
+            const date = e.exif.DateTimeOriginal;
+
+            if (date) {
+                const formatted = date.replace(
+                    /([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/, 
+                    '$1-$2-$3 $4:$5:$6'
+                );
+
+                mtime = new Date(formatted);
+            }
+        } catch (e) { }
+
         files[md5] = { fullName: file, type, mtime, baseName: basename };
     }
 }

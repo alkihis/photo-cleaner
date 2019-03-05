@@ -5,7 +5,7 @@ import ProgressBar from 'progress';
 import { deleteFolderRecursive, MediaFiles, registerFile, getTextualMonth, moveFile, getHexCode, FileType, Extensions, initExts, sleep, copyFile, DuplicateMode } from './helpers';
 import { removeDuplicates } from './duplicates';
 
-export function parseFolders(src: string, dest: string, flags: any) {
+export async function parseFolders(src: string, dest: string, flags: any) {
     // Saute une ligne
     console.log("");
 
@@ -62,7 +62,7 @@ export function parseFolders(src: string, dest: string, flags: any) {
 
     for (const f of all_files) {
         // On peut afficher une barre de progression ici
-        registerFile(files, f[0], f[1] as FileType);
+        await registerFile(files, f[0], f[1] as FileType);
         first_bar.tick();
     }
 
