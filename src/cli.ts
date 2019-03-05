@@ -3,6 +3,8 @@
 import { parseFolders } from "./main";
 import meow from "meow";
 
+console.log(module.paths);
+
 //// INIT CLI ////
 const cli = meow(`
 	Usage
