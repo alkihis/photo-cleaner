@@ -1,6 +1,6 @@
 {
   "name": "@alkihis/photo-cleaner",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Make photo duplicate remove great again",
   "main": "dist/cli.js",
   "scripts": {
@@ -18,8 +18,8 @@
     "meow": "^5.0.0",
     "progress": "^2.0.3"
   },
-  "engines" : { 
-    "node" : ">=8.0.0" 
+  "engines": {
+    "node": ">=8.0.0"
   },
   "files": [
     "cfg/*.*",
