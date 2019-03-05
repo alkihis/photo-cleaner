@@ -20,8 +20,11 @@ function getHexCode() {
 }
 exports.getHexCode = getHexCode;
 // Association numéro de mois => nom de dossier
-const months = JSON.parse(fs_1.default.readFileSync("cfg/month.json", 'utf8'));
+let months;
 function getTextualMonth(m) {
+    if (!months) {
+        months = JSON.parse(fs_1.default.readFileSync("cfg/month.json", 'utf8'));
+    }
     if (String(m) in months) {
         return months[String(m)];
     }
