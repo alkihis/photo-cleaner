@@ -1,6 +1,7 @@
 import fs from 'fs';
 import md5File from 'md5-file';
 import exif, { ExifData } from 'exif';
+import chalk from 'chalk';
 
 //// @types 
 
@@ -162,3 +163,18 @@ export function sleep(ms: number) {
     });
 }
 
+export function makeError(text: string) : void {
+    console.log(chalk.red.italic("ERR") + ": " + text);
+}
+
+export function makeSuccess(text: string) : void {
+    console.log(chalk.greenBright.italic("OK") + ": " + text);
+}
+
+export function makeWarn(text: string) : void {
+    console.log(chalk.yellow.italic("WARN") + ": " + text);
+}
+
+export function makeInfo(text: string) : void {
+    console.log("INFO: " + text);
+}

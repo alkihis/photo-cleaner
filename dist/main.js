@@ -26,21 +26,21 @@ async function parseFolders(src, dest, flags) {
         rm_duplications = flags.duplicates;
     }
     if (!fs_1.default.existsSync(src)) {
-        console.error("Source folder must exists.\n");
+        helpers_1.makeError("Source folder must exists.\n");
         process.exit();
     }
     if (!fs_1.default.existsSync(dest)) {
-        console.log("Auto-creating destination folder.\n");
+        helpers_1.makeWarn("Auto-creating destination folder.\n");
         fs_1.default.mkdirSync(dest);
         if (!fs_1.default.existsSync(dest)) {
-            console.error("Unable to create destination folder. Please check your rights.\n");
+            helpers_1.makeError("Unable to create destination folder. Please check your rights.\n");
             process.exit();
         }
     }
     const files = {};
     const exts = helpers_1.initExts();
     // Recherche de tous les fichiers image: .jpg, .jpeg, .png et tous les fichiers vidéo: mp4, avi, mov
-    console.log("Looking for media files...");
+    helpers_1.makeInfo("Looking for media files...");
     const all_files = [];
     for (const e in exts) {
         for (const ext of exts[e]) {
@@ -58,7 +58,12 @@ async function parseFolders(src, dest, flags) {
     first_bar.terminate();
     // Copie ou déplacement vers la destination
     const count_file = Object.keys(files).length;
-    console.log(`${count_file === 0 ? "No" : count_file} unique file${count_file > 1 ? "s" : ''} found.\n`);
+    if (count_file === 0) {
+        helpers_1.makeWarn(`No media file found.\n`);
+    }
+    else {
+        helpers_1.makeInfo(`${count_file} unique media file${count_file > 1 ? "s" : ''} found.\n`);
+    }
     if (count_file === 0) {
         process.exit();
     }
@@ -113,17 +118,18 @@ async function launchCopy(src, dest, delete_after, copy_mode, files, count_file,
         await Promise.all(promises);
         bar.terminate();
         if (delete_after) {
-            console.log("Delete files in source folder.\n");
+            helpers_1.makeInfo("Delete files in source folder.\n");
             helpers_1.deleteFolderRecursive(src, false);
         }
         if (remove_duplicates !== "false") {
-            duplicates_1.removeDuplicates(dest, remove_duplicates);
+            await duplicates_1.removeDuplicates(dest, remove_duplicates);
         }
-        console.log("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
+        helpers_1.makeSuccess("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
     }
     catch (err) {
         bar.terminate();
-        console.error("An error occured during copy operations.\n", err);
+        helpers_1.makeError("An error occured during copy operations.\n");
+        console.error(err);
     }
 }
 exports.launchCopy = launchCopy;

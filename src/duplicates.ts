@@ -1,21 +1,22 @@
 import fs from 'fs';
 import ProgressBar from 'progress';
 import glob from 'glob';
-import { DuplicateMode } from './helpers';
+import { DuplicateMode, makeSuccess, makeInfo } from './helpers';
 import md5File from 'md5-file';
 
-export function removeDuplicates(folder: string, mode: DuplicateMode) : void {
+export async function removeDuplicates(folder: string, mode: DuplicateMode) : Promise<void> {
     // Recherche de tous les fichiers disponibles dans la source
-    console.log("Listing files inside destination folder.");
+    makeInfo("Listing files inside destination folder.");
 
     const files = glob.sync(folder + "/**/*.*");
 
-    console.log("Looking for duplicates...");
+    makeInfo("Looking for duplicates...");
 
     const bar = new ProgressBar(':current/:total [:bar] :percent :etas ', { total: files.length, incomplete: ".", head: ">", clear: true });
 
     const hash_to_filedate: {[hash: string]: [string, Date]} = {};
     let removed = 0;
+    let found = 0;
 
     for (const filename of files) {
         const current_file_hash = md5File.sync(filename);
@@ -56,8 +57,14 @@ export function removeDuplicates(folder: string, mode: DuplicateMode) : void {
             }
 
             if (to_remove) {
-                removed++;
-                fs.unlinkSync(to_remove);
+                found++;
+
+                await new Promise((resolve) => {
+                    fs.unlink(to_remove as string, (err) => {
+                        if (!err) removed++;
+                        resolve();
+                    });
+                });
             }
         }
         else {
@@ -70,5 +77,10 @@ export function removeDuplicates(folder: string, mode: DuplicateMode) : void {
 
     bar.terminate();
     
-    console.log("Duplicates has been successfully deleted (" + removed + " removed).\n");
+    if (found) {
+        makeInfo("No duplicate found.");
+    }
+    else {
+        makeSuccess("Duplicates has been successfully deleted (" + found + " found, " + removed + " removed).\n");
+    }
 }

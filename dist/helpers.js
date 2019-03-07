@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const md5_file_1 = __importDefault(require("md5-file"));
 const exif_1 = __importDefault(require("exif"));
+const chalk_1 = __importDefault(require("chalk"));
 ;
 var FileType;
 (function (FileType) {
@@ -138,3 +139,19 @@ function sleep(ms) {
     });
 }
 exports.sleep = sleep;
+function makeError(text) {
+    console.log(chalk_1.default.red.italic("ERR") + ": " + text);
+}
+exports.makeError = makeError;
+function makeSuccess(text) {
+    console.log(chalk_1.default.greenBright.italic("OK") + ": " + text);
+}
+exports.makeSuccess = makeSuccess;
+function makeWarn(text) {
+    console.log(chalk_1.default.yellow.italic("WARN") + ": " + text);
+}
+exports.makeWarn = makeWarn;
+function makeInfo(text) {
+    console.log("INFO: " + text);
+}
+exports.makeInfo = makeInfo;

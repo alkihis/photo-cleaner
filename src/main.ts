@@ -2,7 +2,7 @@ import fs from 'fs';
 import glob from 'glob';
 import md5File from 'md5-file';
 import ProgressBar from 'progress';
-import { deleteFolderRecursive, MediaFiles, registerFile, getTextualMonth, moveFile, getHexCode, FileType, Extensions, initExts, sleep, copyFile, DuplicateMode } from './helpers';
+import { deleteFolderRecursive, MediaFiles, registerFile, getTextualMonth, moveFile, getHexCode, FileType, Extensions, initExts, sleep, copyFile, DuplicateMode, makeError, makeWarn, makeSuccess, makeInfo } from './helpers';
 import { removeDuplicates } from './duplicates';
 
 export async function parseFolders(src: string, dest: string, flags: any) {
@@ -27,16 +27,16 @@ export async function parseFolders(src: string, dest: string, flags: any) {
     }
 
     if (!fs.existsSync(src)) {
-        console.error("Source folder must exists.\n");
+        makeError("Source folder must exists.\n");
         process.exit();
     }
 
     if (!fs.existsSync(dest)) {
-        console.log("Auto-creating destination folder.\n");
+        makeWarn("Auto-creating destination folder.\n");
         fs.mkdirSync(dest);
 
         if (!fs.existsSync(dest)) {
-            console.error("Unable to create destination folder. Please check your rights.\n");
+            makeError("Unable to create destination folder. Please check your rights.\n");
             process.exit();
         }
     }
@@ -46,7 +46,7 @@ export async function parseFolders(src: string, dest: string, flags: any) {
     const exts: Extensions = initExts();
 
     // Recherche de tous les fichiers image: .jpg, .jpeg, .png et tous les fichiers vidéo: mp4, avi, mov
-    console.log("Looking for media files...");
+    makeInfo("Looking for media files...");
 
     const all_files: [string, string][] = [];
 
@@ -70,7 +70,13 @@ export async function parseFolders(src: string, dest: string, flags: any) {
 
     // Copie ou déplacement vers la destination
     const count_file = Object.keys(files).length;
-    console.log(`${count_file === 0 ? "No" : count_file} unique file${count_file > 1 ? "s" : ''} found.\n`);
+
+    if (count_file === 0) {
+        makeWarn(`No media file found.\n`);
+    }
+    else {
+        makeInfo(`${count_file} unique media file${count_file > 1 ? "s" : ''} found.\n`);
+    }
 
     if (count_file === 0) {
         process.exit();
@@ -139,18 +145,19 @@ export async function launchCopy(src: string, dest: string, delete_after: boolea
         bar.terminate();
 
         if (delete_after) {
-            console.log("Delete files in source folder.\n");
+            makeInfo("Delete files in source folder.\n");
 
             deleteFolderRecursive(src, false);
         }
 
         if (remove_duplicates !== "false") {
-            removeDuplicates(dest, remove_duplicates);
+            await removeDuplicates(dest, remove_duplicates);
         }
 
-        console.log("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
+        makeSuccess("Your media files has been successfully " + (copy_mode ? "copied" : "moved") + ".\n");
     } catch (err) {
         bar.terminate();
-        console.error("An error occured during copy operations.\n", err);
+        makeError("An error occured during copy operations.\n");
+        console.error(err);
     }
 }
